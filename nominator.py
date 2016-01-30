@@ -3,33 +3,33 @@ import importlib
 
 def reload(module):
 	"""
-    Reloads the module (the nominator.py) into the interpreter 
+	Reloads the module (the nominator.py) into the interpreter 
 
-    Returns
-    -------
-    The module object
+	Returns
+	-------
+	The module object
 
-    Example
-    -------
-    >>> import nominator as nom
-    >>> nom.reload(nom)
-    """
+	Example
+	-------
+	>>> import nominator as nom
+	>>> nom.reload(nom)
+	"""
 
 	importlib.reload(module)
 
 
 def grabAllFromYears(fromYear, toYear):
-    """
-    Generates a text file with list of movies from fromYear to toYear.
+	"""
+	Generates a text file with list of movies from fromYear to toYear.
 
-    Returns
-    -------
-    Nothing
+	Returns
+	-------
+	Nothing
 
-    Example
-    -------
-    >>> grabAllFromYears(2009,2015)
-    """
+	Example
+	-------
+	>>> grabAllFromYears(2009,2015)
+	"""
 
 	import tmdbsimple as tmdb
 	tmdb.API_KEY = 'YOUR_API_KEY_HERE'
@@ -56,16 +56,16 @@ def grabAllFromYears(fromYear, toYear):
 
 def grabAllFromYear(year):
 	"""
-    Generates a text file with list of movies from the given year.
+	Generates a text file with list of movies from the given year.
 
-    Returns
-    -------
-    Nothing
+	Returns
+	-------
+	Nothing
 
-    Example
-    -------
-    >>> grabAllFromYears(1994)
-    """
+	Example
+	-------
+	>>> grabAllFromYears(1994)
+	"""
 
 	grabAllFromYears(year, year)
 
