@@ -31,10 +31,12 @@ def grabAllFromYears(fromYear, toYear):
 	>>> grabAllFromYears(2009,2015)
 	"""
 
+	from keys import tmdb_apikey
 	import tmdbsimple as tmdb
-	tmdb.API_KEY = 'YOUR_API_KEY_HERE'
-
+	tmdb.API_KEY = tmdb_apikey
 	search = tmdb.Discover()
+     
+ 
 	for year in range(fromYear, toYear+1):
 
 		r = search.movie(primary_release_year = year)
