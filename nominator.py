@@ -1,6 +1,11 @@
 
 import importlib
 
+import omdb as omdb
+from keys import tmdb_apikey
+import tmdbsimple as tmdb
+tmdb.API_KEY = tmdb_apikey
+
 def reload(module):
 	"""
 	Reloads the module (the nominator.py) into the interpreter 
@@ -30,10 +35,6 @@ def grabAllFromYears(fromYear, toYear):
 	-------
 	>>> grabAllFromYears(2009,2015)
 	"""
-
-	from keys import tmdb_apikey
-	import tmdbsimple as tmdb
-	tmdb.API_KEY = tmdb_apikey
 	search = tmdb.Discover()
      
  
@@ -72,12 +73,9 @@ def grabAllFromYear(year):
 	grabAllFromYears(year, year)
 
 
-def getMovieData(title, year):
-	import omdb as omdb
+def getMovieData(title, year = None):
 	res = omdb.request(t=title, y=year)
 	return res.content
 
-
-	
 
 
