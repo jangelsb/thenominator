@@ -72,6 +72,12 @@ def grabAllFromYear(year):
 	grabAllFromYears(year, year)
 
 
+def getMovieData(title, year):
+	import omdb as omdb
+	res = omdb.request(t=title, y=year)
+	return res.content
+
+
 	
 
 
