@@ -115,3 +115,77 @@ def posNegOnFullData():
                len([x for x in negGuesses if x is False])) \
                / (len(posGuesses) + len(negGuesses))
     return accuracy
+
+def ConclusionWeight(review, weight):
+    #posReviews, negReviews = loadReviews()
+    badWords = getBadList()
+    goodWords = getGoodList()
+    sharWar = sharedWords()
+
+    reviewSent = review.split('.')
+    lastPar = reviewSent[-4:]
+    firstPart = reviewSent[:-4]
+
+    lastPar = ''.join(lastPar)
+    firstPart = ''.join(firstPart)
+
+    lastParTokens = customtokenize(lastPar)
+    firstPartTokens = customtokenize(firstPart)
+
+
+    #get rid of shared words in both list
+    badWords = [x for x in badWords if x not in sharWar]
+    goodWords = [x for x in goodWords if x not in sharWar]
+
+    lastPosWords = [x for x in lastParTokens if x in goodWords]
+    numLastPosWords = len(lastPosWords)
+    lastNegWords = [x for x in lastParTokens if x in badWords]
+    numLastNegWords = len(lastNegWords)
+
+    firstPosWords = [x for x in firstPartTokens if x in goodWords]
+    numFirstPosWords = len(firstPosWords)
+    firstNegWords = [x for x in firstPartTokens if x in badWords]
+    numFirstNegWords = len(firstNegWords)
+
+    score = (numFirstPosWords + (numLastPosWords * weight)) - \
+            (numFirstNegWords + (numLastNegWords * weight))
+
+    # print("Words in review")
+    # print(wordsInReview)
+    #
+    # print("here are the good words")
+    # print(goodWords)
+    #
+    # print("here are the bad words")
+    # print(badWords)
+    #
+    # print("here are pos words in review")
+    # print(posWordsInReview)
+    #
+    # print("here are neg words in review")
+    # print(negWordsInReview)
+
+    # if score < 0:
+    #     print("review is negative")
+    # else:
+    #     print("review is positive")
+
+    return score >= 0
+
+def fullConcWeight(weight):
+    posReviews, negReviews = loadReviews()
+    print("Please wait... (may take up to ten minutes)")
+
+    posGuesses = []
+    for review in posReviews:
+        posGuesses.append(ConclusionWeight(review, weight))
+
+    negGuesses = []
+    for review in negReviews:
+        negGuesses.append(ConclusionWeight(review, weight))
+
+    #accuracy was 70.65% when ran on pos and neg dataset with weight 2
+    accuracy = (len([x for x in posGuesses if x is True]) + \
+               len([x for x in negGuesses if x is False])) \
+               / (len(posGuesses) + len(negGuesses))
+    return accuracy
