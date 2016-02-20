@@ -40,6 +40,9 @@ def loadReviews():
 def pipeline_multinomialNB():
     posreviews, negreviews = loadReviews()
     
+    
+    
+    
     print(posreviews[0])
     print(negreviews[1])
     
