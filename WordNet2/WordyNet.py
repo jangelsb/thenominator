@@ -33,12 +33,12 @@ def bagtest():
     return bag
 
 def getBadList():
-    with open('../negWords.txt', 'r') as myFile:
+    with open('../dataset/negWords.txt', 'r') as myFile:
         myData = myFile.read().split()
     return myData
 
 def getGoodList():
-    with open('../posWords.txt', 'r') as myFile:
+    with open('../dataset/posWords.txt', 'r') as myFile:
         myData = myFile.read().split()
     return myData
 
@@ -48,12 +48,22 @@ def sharedWords():
     bla = [x for x in pos if x in neg]
     return bla
 
+def loadReviews():
+    from os import listdir
+    pospath = '../dataset/txt_sentoken/pos/'
+    negpath = '../dataset/txt_sentoken/neg/'
+    posfilenames = listdir(pospath)
+    negfilenames = listdir(negpath)
+    posreviews = [loadtxtfile(pospath+filename) for filename in posfilenames]
+    negreviews = [loadtxtfile(negpath+filename) for filename in negfilenames]
+    return posreviews, negreviews
+
 def posminusneg(review):
     badWords = getBadList()
     goodWords = getGoodList()
     sharWar = sharedWords()
-    file = loadtxtfile(review)
-    wordsInReview = customtokenize(file)
+    #file = loadtxtfile(review)
+    wordsInReview = customtokenize(review)
 
     #get rid of shared words in both list
     badWords = [x for x in badWords if x not in sharWar]
@@ -88,4 +98,20 @@ def posminusneg(review):
     #     print("review is positive")
     return score >= 0
 
+def posNegOnFullData():
+    posReviews, negReviews = loadReviews()
+    print("Please wait... (may take up to ten minutes)")
 
+    posGuesses = []
+    for review in posReviews:
+        posGuesses.append(posminusneg(review))
+
+    negGuesses = []
+    for review in negReviews:
+        negGuesses.append(posminusneg(review))
+
+    #accuracy was 69.9% when ran on pos and neg dataset
+    accuracy = (len([x for x in posGuesses if x is True]) + \
+               len([x for x in negGuesses if x is False])) \
+               / (len(posGuesses) + len(negGuesses))
+    return accuracy
