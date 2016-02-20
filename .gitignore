@@ -5,5 +5,5 @@
 !*.md
 !dataset/
 !dataset/**
-!wordNet/
+!WordNet2/
 *keys.py
