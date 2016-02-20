@@ -32,4 +32,59 @@ def bagtest():
     bag = makebagofwords(txt)
     return bag
 
-#def getPOSDict(wordList):
+def getBadList():
+    with open('../negWords.txt', 'r') as myFile:
+        myData = myFile.read().split()
+    return myData
+
+def getGoodList():
+    with open('../posWords.txt', 'r') as myFile:
+        myData = myFile.read().split()
+    return myData
+
+def sharedWords():
+    pos = getGoodList()
+    neg = getBadList()
+    bla = [x for x in pos if x in neg]
+    return bla
+
+def posminusneg(review):
+    badWords = getBadList()
+    goodWords = getGoodList()
+    sharWar = sharedWords()
+    file = loadtxtfile(review)
+    wordsInReview = customtokenize(file)
+
+    #get rid of shared words in both list
+    badWords = [x for x in badWords if x not in sharWar]
+    goodWords = [x for x in goodWords if x not in sharWar]
+
+    posWordsInReview = [x for x in wordsInReview if x in goodWords]
+    numPos = len(posWordsInReview)
+
+    negWordsInReview = [x for x in wordsInReview if x in badWords]
+    numNeg = len(negWordsInReview)
+
+    score = numPos - numNeg
+
+    print("Words in review")
+    print(wordsInReview)
+
+    print("here are the good words")
+    print(goodWords)
+
+    print("here are the bad words")
+    print(badWords)
+
+    print("here are pos words in review")
+    print(posWordsInReview)
+
+    print("here are neg words in review")
+    print(negWordsInReview)
+
+    if score < 0:
+        print("review is negative")
+    else:
+        print("review is positive")
+
+
