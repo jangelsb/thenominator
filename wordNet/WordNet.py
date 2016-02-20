@@ -67,24 +67,25 @@ def posminusneg(review):
 
     score = numPos - numNeg
 
-    print("Words in review")
-    print(wordsInReview)
+    # print("Words in review")
+    # print(wordsInReview)
+    #
+    # print("here are the good words")
+    # print(goodWords)
+    #
+    # print("here are the bad words")
+    # print(badWords)
+    #
+    # print("here are pos words in review")
+    # print(posWordsInReview)
+    #
+    # print("here are neg words in review")
+    # print(negWordsInReview)
 
-    print("here are the good words")
-    print(goodWords)
-
-    print("here are the bad words")
-    print(badWords)
-
-    print("here are pos words in review")
-    print(posWordsInReview)
-
-    print("here are neg words in review")
-    print(negWordsInReview)
-
-    if score < 0:
-        print("review is negative")
-    else:
-        print("review is positive")
+    # if score < 0:
+    #     print("review is negative")
+    # else:
+    #     print("review is positive")
+    return score >= 0
 
 
