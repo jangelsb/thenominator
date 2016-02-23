@@ -1,3 +1,4 @@
+from nltk import pos_tag
 from nltk import FreqDist
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import CountVectorizer
@@ -109,17 +110,21 @@ def matrixtest():
     counts = vectorizesparsematrix(txt)
     return counts.sum(axis = 1).mean()
 
-# fully confused    
-#def fulltest():
-    
-    
-    
 
-def wordnettesting():
-    for synset in wn.synsets('dog'):
+#good example showing what wordnet offers
+#more about relations between words
+#http://wordnetweb.princeton.edu/perl/webwn
+def testWordNet(word):
+    for synset in wn.synsets(word):
+        print(synset)
         for lemma in synset.lemmas():
             print(lemma.name())
-            
+
+def taggerTest():
+    text = loadtxtfile('dataset/txt_sentoken/neg/cv000_29416.txt')
+    text = word_tokenize(text)
+    print(pos_tag(text));
+                
             
 def vectorizesparsematrix(document):
     tokens = customtokenize(document.lower())

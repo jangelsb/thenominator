@@ -1,5 +1,4 @@
-import nltk
-from nltk.corpus import wordnet
+from nltk import pos_tag
 from nltk import FreqDist
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords as nltkstopwords
@@ -16,37 +15,15 @@ def customtokenize(document):
     ret = re.sub('[^0-9a-zA-Z ]', ' ', ret) #only keep words and numbers
     ret = re.sub(' +', ' ',ret) #remove extra whitespace
     return ret.strip().split()  #remove leading and trailing whitespace then split on space
-
-def makebagofwords(document):
-    #tokens = word_tokenize(document.lower())   #this one blows
-    tokens = customtokenize(document.lower())
-
-    stopwords = set(nltkstopwords.words('english'))
-    tokens = [i for i in tokens if not i in stopwords]
-    return FreqDist(tokens)
-
-
-
-def bagtest():
-    txt = loadtxtfile('../dataset/txt_sentoken/neg/cv000_29416.txt')
-    bag = makebagofwords(txt)
-    return bag
-
-def getBadList():
-    with open('../dataset/negWords.txt', 'r') as myFile:
-        myData = myFile.read().split()
-    return myData
-
-def getGoodList():
-    with open('../dataset/posWords.txt', 'r') as myFile:
-        myData = myFile.read().split()
-    return myData
-
-def sharedWords():
-    pos = getGoodList()
-    neg = getBadList()
-    bla = [x for x in pos if x in neg]
-    return bla
+    
+# 'NN' is noun
+# 'JJ is adjective
+# 'VB' is verb
+# 'RB' is adverb
+# theres a bunch more, look up nltk.pos_tag documentation
+def tokenizeAndRemovePOS(document, pos):
+    tags = pos_tag(customtokenize(document)) # figures out pos for every word
+    return [tag[0] for tag in tags if tag[1] != pos] 
 
 def loadReviews():
     from os import listdir
@@ -56,136 +33,130 @@ def loadReviews():
     negfilenames = listdir(negpath)
     posreviews = [loadtxtfile(pospath+filename) for filename in posfilenames]
     negreviews = [loadtxtfile(negpath+filename) for filename in negfilenames]
+
     return posreviews, negreviews
+     
 
-def posminusneg(review):
-    badWords = getBadList()
-    goodWords = getGoodList()
-    sharWar = sharedWords()
-    #file = loadtxtfile(review)
-    wordsInReview = customtokenize(review)
 
-    #get rid of shared words in both list
-    badWords = [x for x in badWords if x not in sharWar]
-    goodWords = [x for x in goodWords if x not in sharWar]
+def posminusneg(review, goodWords, badWords):
+    wordsInReview = customtokenize(review) #69.90%
+    #wordsInReview = tokenizeAndRemovePOS(review, 'JJ') #64.35%
+    #wordsInReview = tokenizeAndRemovePOS(review, 'NN') #69.45% was ~81% after positive reviews
+    #wordsInReview = tokenizeAndRemovePOS(review, 'VB') #69.85%
 
-    posWordsInReview = [x for x in wordsInReview if x in goodWords]
-    numPos = len(posWordsInReview)
-
-    negWordsInReview = [x for x in wordsInReview if x in badWords]
-    numNeg = len(negWordsInReview)
-
-    score = numPos - numNeg
-
-    # print("Words in review")
-    # print(wordsInReview)
-    #
-    # print("here are the good words")
-    # print(goodWords)
-    #
-    # print("here are the bad words")
-    # print(badWords)
-    #
-    # print("here are pos words in review")
-    # print(posWordsInReview)
-    #
-    # print("here are neg words in review")
-    # print(negWordsInReview)
-
-    # if score < 0:
-    #     print("review is negative")
-    # else:
-    #     print("review is positive")
+    score = 0
+    for x in wordsInReview:
+        if x in goodWords:
+            score += 1
+        if x in badWords:
+            score -= 1
+        
+    #print("review is " + ("negative" if score < 0 else "positive"))
     return score >= 0
+    
+def getUniqueGoodandBadWords():
+    with open('../dataset/negWords.txt', 'r') as myFile:
+        badList = myFile.read().split()
 
-def posNegOnFullData():
+    with open('../dataset/posWords.txt', 'r') as myFile:
+        goodList = myFile.read().split()
+        
+    shared = [x for x in goodList if x in badList]
+    
+    goodWords = set([x for x in goodList if x not in shared]) 
+    badWords = set([x for x in badList if x not in shared])
+    
+    return goodWords, badWords
+  
+  
+def fullPosNegTest():
+    goodWords, badWords = getUniqueGoodandBadWords();
+    
     posReviews, negReviews = loadReviews()
-    print("Please wait... (may take up to ten minutes)")
 
-    posGuesses = []
+    correct = 0
+    count = 0    
+    s = ""
     for review in posReviews:
-        posGuesses.append(posminusneg(review))
-
-    negGuesses = []
+        count += 1
+        if posminusneg(review, goodWords, badWords):
+            correct += 1
+            s = "correct!"
+        else:
+            s = "wrong :("
+        #if count % 10 == 0:
+        print(s + "  {:.2f}%  ".format(correct / count * 100) + str(count))
+            
+    print("halfway there!")
     for review in negReviews:
-        negGuesses.append(posminusneg(review))
+        count += 1
+        if not posminusneg(review, goodWords, badWords):
+            correct += 1
+            s = "correct!"
+        else:
+            s = "wrong :("
+        #if count % 10 == 0:
+        print(s + "  {:.2f}%  ".format(correct / count * 100) + str(count))
+            
+    return correct / count
 
-    #accuracy was 69.9% when ran on pos and neg dataset
-    accuracy = (len([x for x in posGuesses if x is True]) + \
-               len([x for x in negGuesses if x is False])) \
-               / (len(posGuesses) + len(negGuesses))
-    return accuracy
 
-def ConclusionWeight(review, weight):
-    #posReviews, negReviews = loadReviews()
-    badWords = getBadList()
-    goodWords = getGoodList()
-    sharWar = sharedWords()
-
+def conclusionWeight(review, weight, goodWords, badWords):
     reviewSent = review.split('.')
-    lastPar = reviewSent[-4:]
+    lastPart = reviewSent[-4:]
     firstPart = reviewSent[:-4]
 
-    lastPar = ''.join(lastPar)
+    lastPart = ''.join(lastPart)
     firstPart = ''.join(firstPart)
 
-    lastParTokens = customtokenize(lastPar)
+    lastPartTokens = customtokenize(lastPart)
     firstPartTokens = customtokenize(firstPart)
 
+    numLastGoodWords = 0;
+    numLastBadWords = 0
+    for x in lastPartTokens:
+        if x in goodWords:
+            numLastGoodWords+=1
+        if x in badWords:
+            numLastBadWords+=1
+            
+    numFirstGoodWords = 0;
+    numFirstBadWords = 0
+    for x in firstPartTokens:
+        if x in goodWords:
+            numFirstGoodWords+=1
+        if x in badWords:
+            numFirstBadWords+=1
 
-    #get rid of shared words in both list
-    badWords = [x for x in badWords if x not in sharWar]
-    goodWords = [x for x in goodWords if x not in sharWar]
 
-    lastPosWords = [x for x in lastParTokens if x in goodWords]
-    numLastPosWords = len(lastPosWords)
-    lastNegWords = [x for x in lastParTokens if x in badWords]
-    numLastNegWords = len(lastNegWords)
+    score = (numFirstGoodWords + (numLastGoodWords * weight)) - \
+            (numFirstBadWords + (numLastBadWords * weight))
 
-    firstPosWords = [x for x in firstPartTokens if x in goodWords]
-    numFirstPosWords = len(firstPosWords)
-    firstNegWords = [x for x in firstPartTokens if x in badWords]
-    numFirstNegWords = len(firstNegWords)
-
-    score = (numFirstPosWords + (numLastPosWords * weight)) - \
-            (numFirstNegWords + (numLastNegWords * weight))
-
-    # print("Words in review")
-    # print(wordsInReview)
-    #
-    # print("here are the good words")
-    # print(goodWords)
-    #
-    # print("here are the bad words")
-    # print(badWords)
-    #
-    # print("here are pos words in review")
-    # print(posWordsInReview)
-    #
-    # print("here are neg words in review")
-    # print(negWordsInReview)
-
-    # if score < 0:
-    #     print("review is negative")
-    # else:
-    #     print("review is positive")
+    #print("review is " + ("negative" if score < 0 else "positive"))
 
     return score >= 0
 
 def fullConcWeight(weight):
+    goodWords, badWords = getUniqueGoodandBadWords();    
+    
     posReviews, negReviews = loadReviews()
-    print("Please wait... (may take up to ten minutes)")
 
-    posGuesses = []
+    correct = 0
+    
     for review in posReviews:
-        posGuesses.append(ConclusionWeight(review, weight))
-
-    negGuesses = []
+        if conclusionWeight(review, weight, goodWords, badWords):
+            correct += 1
+            
     for review in negReviews:
-        negGuesses.append(ConclusionWeight(review, weight))
+        if not conclusionWeight(review, weight, goodWords, badWords):
+            correct += 1
+            
+    accuracy = correct / (len(posReviews) + len(negReviews))
 
-    #accuracy was 70.65% when ran on pos and neg dataset with weight 2
-    accuracy = (len([x for x in posGuesses if x is True]) + \
-               len([x for x in negGuesses if x is False])) \
-               / (len(posGuesses) + len(negGuesses))
     return accuracy
+    
+    
+    
+    
+    
+    
