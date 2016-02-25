@@ -187,4 +187,4 @@ def concWeightSim(maxWeight, maxSent):
     maxPercent, bestWeight, bestNumSent = getMatrixMax(percentMatrix)
     print("\nBest percentage: " + str(maxPercent), end="")
     print("\nBest Sentence num: " + str(bestNumSent), end="")
-    print("\nBest Weight: " + str(bestWeight), end="")
+    print("\nBest Weight: " + str(bestWeight))
