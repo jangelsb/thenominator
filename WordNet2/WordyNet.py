@@ -174,6 +174,30 @@ def getMatrixMax(matrix):
     indexNumSent = maximum.index(totalMax)
     return totalMax, indexNumSent, indexWeight[indexNumSent]
 
+def causeImBored(matrix):
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    plt.ylabel("Weight")
+    plt.xlabel("Sentence Num")
+
+    rows = len(matrix)
+    columns = len(matrix[0])
+
+    x = []
+    y = []
+    z = []
+
+    for i in range(rows):
+        for j in range(columns):
+            x.append(j)
+            y.append(i)
+            z.append(matrix[i][j])
+
+    ax.plot(x, y, z)
+    plt.show()
+
 def concWeightSim(maxWeight, maxSent):
     percentMatrix = [[0 for x in range(maxWeight)] for x in range(maxSent)]
 
@@ -188,3 +212,9 @@ def concWeightSim(maxWeight, maxSent):
     print("\nBest percentage: " + str(maxPercent), end="")
     print("\nBest Sentence num: " + str(bestNumSent), end="")
     print("\nBest Weight: " + str(bestWeight))
+
+    #uncomment for some hawt 3d graph action
+    #causeImBored(percentMatrix)
+
+
+
