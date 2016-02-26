@@ -102,10 +102,10 @@ def fullPosNegTest():
     return correct / count
 
 
-def conclusionWeight(review, weight, goodWords, badWords):
+def conclusionWeight(review, weight, goodWords, badWords, numSent):
     reviewSent = review.split('.')
-    lastPart = reviewSent[-4:]
-    firstPart = reviewSent[:-4]
+    lastPart = reviewSent[-numSent:]
+    firstPart = reviewSent[:-numSent]
 
     lastPart = ''.join(lastPart)
     firstPart = ''.join(firstPart)
@@ -137,7 +137,7 @@ def conclusionWeight(review, weight, goodWords, badWords):
 
     return score >= 0
 
-def fullConcWeight(weight):
+def fullConcWeight(weight, numSent):
     goodWords, badWords = getUniqueGoodandBadWords();    
     
     posReviews, negReviews = loadReviews()
@@ -145,11 +145,11 @@ def fullConcWeight(weight):
     correct = 0
     
     for review in posReviews:
-        if conclusionWeight(review, weight, goodWords, badWords):
+        if conclusionWeight(review, weight, goodWords, badWords, numSent):
             correct += 1
             
     for review in negReviews:
-        if not conclusionWeight(review, weight, goodWords, badWords):
+        if not conclusionWeight(review, weight, goodWords, badWords, numSent):
             correct += 1
             
     accuracy = correct / (len(posReviews) + len(negReviews))
@@ -157,7 +157,65 @@ def fullConcWeight(weight):
     return accuracy
     
     
-    
-    
-    
-    
+def printMatrix(matrix):
+    rows = len(matrix)
+    for i in range(rows):
+        print(matrix[i])
+
+def getMatrixMax(matrix):
+    rows = len(matrix)
+    maximum = []
+    indexWeight = []
+    for i in range(rows):
+        tempMax = max(matrix[i])
+        indexWeight.append(matrix[i].index(tempMax))
+        maximum.append(tempMax)
+
+    totalMax = max(maximum)
+    indexNumSent = maximum.index(totalMax)
+    return totalMax, indexNumSent, indexWeight[indexNumSent]
+
+def causeImBored(matrix):
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    plt.ylabel("Weight")
+    plt.xlabel("Sentence Num")
+
+    rows = len(matrix)
+    columns = len(matrix[0])
+
+    x = []
+    y = []
+    z = []
+
+    for i in range(rows):
+        for j in range(columns):
+            x.append(j)
+            y.append(i)
+            z.append(matrix[i][j])
+
+    ax.plot(x, y, z)
+    plt.show()
+
+def concWeightSim(maxWeight, maxSent):
+    percentMatrix = [[0 for x in range(maxWeight)] for x in range(maxSent)]
+
+    for i in range(maxWeight):
+        for j in range(maxSent):
+            percentMatrix[i][j] = fullConcWeight(i, j)
+
+    print("X-Axis = numSent")
+    print("Y-Axis = weight")
+    printMatrix(percentMatrix)
+    maxPercent, bestWeight, bestNumSent = getMatrixMax(percentMatrix)
+    print("\nBest percentage: " + str(maxPercent), end="")
+    print("\nBest Sentence num: " + str(bestNumSent), end="")
+    print("\nBest Weight: " + str(bestWeight))
+
+    #uncomment for some hawt 3d graph action
+    #causeImBored(percentMatrix)
+
+
+
