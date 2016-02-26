@@ -43,6 +43,7 @@ def posminusneg(review, goodWords, badWords):
     #wordsInReview = tokenizeAndRemovePOS(review, 'JJ') #64.35%
     #wordsInReview = tokenizeAndRemovePOS(review, 'NN') #69.45% was ~81% after positive reviews
     #wordsInReview = tokenizeAndRemovePOS(review, 'VB') #69.85%
+    #wordsInReview = tokenizeAndRemovePOS(review, 'RB') #68.75%
 
     score = 0
     for x in wordsInReview:
