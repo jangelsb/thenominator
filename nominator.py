@@ -1,3 +1,5 @@
+# to load file into interpreter 
+# exec(open('nominator.py').read())
 
 import importlib
 
@@ -76,8 +78,5 @@ def grabAllFromYear(year):
 def getMovieData(title, year = None):
 	res = omdb.request(t=title, y=year)
 	return res.content
-buck
-
-
 
 
