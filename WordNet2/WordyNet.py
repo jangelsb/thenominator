@@ -38,11 +38,11 @@ def loadReviews():
     
 # loads the positive and negative part of speech lists
 # into a list of 1000 lists of strings for easy separation into training and testing sets
-def loadPosLists():
+def loadPosLists(filterPos):
+    filterPos = set(filterPos)
+    nofilter = len(filterPos) == 0
     with open('../dataset/txt_sentoken/posposlist.txt') as myFile:
-        posLines = myFile.read().split('\n')
-    
-    
+        posLines = myFile.read().split('\n')    
     posList = []    # list of 1000 list of words
     curList = []    # current list of words
     for line in posLines:
@@ -51,15 +51,12 @@ def loadPosLists():
             curList = []
         else:
             parts = line.split(' ')
-            if parts[1] == 'JJ' or parts[1] == 'RB':
+            if nofilter or parts[1] in filterPos:
                 curList.append(parts[0])
                 
 
-
     with open('../dataset/txt_sentoken/negposlist.txt') as myFile:
-        negLines = myFile.read().split('\n')
-    
-    
+        negLines = myFile.read().split('\n')    
     negList = []    # list of 1000 list of words
     curList = []    # current list of words
     for line in negLines:
@@ -68,9 +65,8 @@ def loadPosLists():
             curList = []
         else:
             parts = line.split(' ')
-            #if parts[1] == 'JJ' or parts[1] == 'RB':
-            if parts[1] == 'JJ':
-                curList.append(parts[0])            
+            if nofilter or parts[1] in filterPos:
+                curList.append(parts[0])
         
     return posList, negList
     
@@ -267,15 +263,19 @@ def buildPosWordList(nameOfDoc, documents):
         
     text_file.close()    
     
-
+    
+# THINGS TO TRY
+# print out top pos and neg words for test set and compare with training!
+# try with different pos combinations
+# only count up to one word per document (make each document a set instead of bow basically)
 def getSuperGoodBad(topNum):
     import random
     # get shit
     posReviews, negReviews = loadReviews()
-    posposList, negposList = loadPosLists()
+    posposList, negposList = loadPosLists([])
+    dataSetGoodWords, dataSetBadWords = getUniqueGoodandBadWords()
     
     # choose random 800 for training set
-    accuracy = 0.0    
     percenttrain = 0.8
     posTrainCount = int(percenttrain*len(posposList))
     negTrainCount = int(percenttrain*len(negposList)) 
@@ -283,27 +283,119 @@ def getSuperGoodBad(topNum):
     posTuples = list(zip(posReviews, posposList))
     negTuples = list(zip(negReviews, negposList))
     
+    random.seed(0)
     random.shuffle(posTuples)
     random.shuffle(negTuples)
     
+    trainPosTuples = posTuples[:posTrainCount]
+    trainNegTuples = negTuples[:negTrainCount]
+    
+    # make sure posTrainCount: isnt being recalculated every iteration? #optimization #swag
+    testPosReviews = [tup[0] for tup in posTuples[posTrainCount:]]
+    testNegReviews = [tup[0] for tup in negTuples[negTrainCount:]]
+    
+    #this list to set to list conversions is straight dongers (figure out an optimization!!!)
     superPospos = []
-    for tup in posTuples:
-        superPospos += tup[1]
+    for tup in trainPosTuples:
+        superPospos += list(set(tup[1]))
 
     superNegpos = []
-    for tup in negTuples:
-        superNegpos += tup[1]
+    for tup in trainNegTuples:
+        superNegpos += list(set(tup[1]))
 
     goodFreqDist = FreqDist(superPospos);
-    badFreqDict = FreqDist(superNegpos);
+    badFreqDist = FreqDist(superNegpos);
 
-    goodWordsDict = FreqDist(superPospos).most_common(topNum);
-    badWordsDict = FreqDist(superNegpos).most_common(topNum);
+
+    topGoodWords = []   #switch to list if you want to see ordering
+    topBadWords = []
+    #topGoodWords = set()
+    #topBadWords = set()
+    topGoodDict = {}
+    topBadDict = {}
     
-    return goodWordsDict, badWordsDict
+    while len(topGoodWords) < topNum or len(topBadWords) < topNum:
+        if len(topGoodWords) < topNum:        
+            goodTup = goodFreqDist.most_common(1)[0]
+            goodWord = goodTup[0]
+            goodWeight = goodTup[1]
+            topGoodDict[goodWord] = goodWeight
+            del goodFreqDist[goodWord]
+
+            if goodWord in dataSetGoodWords:
+                if goodWord in topBadWords:
+                    topBadWords.remove(goodWord)
+                else:
+                    topGoodWords.append(goodWord) #if list
+                    #topGoodWords.add(goodWord)     #if set
+                
+        if len(topBadWords) < topNum:
+            badTup = badFreqDist.most_common(1)[0]
+            badWord = badTup[0];
+            badWeight = badTup[1]
+            topBadDict[badWord] = badWeight
+            del badFreqDist[badWord]
+              
+            if badWord in dataSetBadWords:        
+                if badWord in topGoodWords:
+                    topGoodWords.remove(badWord)
+                else:
+                    topBadWords.append(badWord) #if list
+                    #topBadWords.add(badWord)     #if set
+        
+
+    # prints out the top good and bad words with their weights
+    topGoodCheck = [(word,topGoodDict[word]) for word in topGoodWords]
+    topBadCheck = [(word,topBadDict[word]) for word in topBadWords]
+    return topGoodCheck, topBadCheck
+
+    count = 0
+    correct = 0    
+    avgposscore = 0
+    avgnegscore = 0
+    for posReview in testPosReviews:
+        count+=1
+        score = 0    
+        reviewTokens = customtokenize(posReview.lower())
+        for token in reviewTokens:
+            if token in topGoodWords:
+                score += topGoodDict[token]
+                #score+=1
+            if token in topBadWords:
+                score -= topBadDict[token]
+                #score-=1
+        avgposscore += score
+        #score -= 2650
+        #score -= 4
+        if score > 0:
+            print("correct! " + str(score))
+            correct+=1
+        else:
+            print("wrong " + str(score))
     
     
+    for negReview in testNegReviews:
+        count+=1
+        score = 0    
+        reviewTokens = customtokenize(negReview.lower())
+        for token in reviewTokens:
+            if token in topGoodWords:
+                score += topGoodDict[token]
+                #score+=1
+            if token in topBadWords:
+                score -= topBadDict[token]
+                #score-=1
+        avgnegscore += score
+        #score -= 2650
+        #score -= 4
+        if score <= 0:
+            print("correct! " + str(score))
+            correct+=1
+        else:
+            print("wrong " + str(score))
     
-    
+    print(avgposscore / 200)
+    print(avgnegscore / 200)
+    return correct/count
     
     
