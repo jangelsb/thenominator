@@ -1,3 +1,5 @@
+# to load file into interpreter 
+# exec(open('nominator.py').read())
 
 import importlib
 
