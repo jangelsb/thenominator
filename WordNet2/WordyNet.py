@@ -35,11 +35,48 @@ def loadReviews():
     negreviews = [loadtxtfile(negpath+filename) for filename in negfilenames]
 
     return posreviews, negreviews
-     
+    
+# loads the positive and negative part of speech lists
+# into a list of 1000 lists of strings for easy separation into training and testing sets
+def loadPosLists():
+    with open('../dataset/txt_sentoken/posposlist.txt') as myFile:
+        posLines = myFile.read().split('\n')
+    
+    
+    posList = []    # list of 1000 list of words
+    curList = []    # current list of words
+    for line in posLines:
+        if line == '':
+            posList.append(curList)
+            curList = []
+        else:
+            parts = line.split(' ')
+            if parts[1] == 'JJ' or parts[1] == 'RB':
+                curList.append(parts[0])
+                
 
+
+    with open('../dataset/txt_sentoken/negposlist.txt') as myFile:
+        negLines = myFile.read().split('\n')
+    
+    
+    negList = []    # list of 1000 list of words
+    curList = []    # current list of words
+    for line in negLines:
+        if line == '':
+            negList.append(curList)
+            curList = []
+        else:
+            parts = line.split(' ')
+            #if parts[1] == 'JJ' or parts[1] == 'RB':
+            if parts[1] == 'JJ':
+                curList.append(parts[0])            
+        
+    return posList, negList
+    
 
 def posminusneg(review, goodWords, badWords):
-    wordsInReview = customtokenize(review) #69.90%
+    #wordsInReview = customtokenize(review) #69.90%
     #wordsInReview = tokenizeAndRemovePOS(review, 'JJ') #64.35%
     #wordsInReview = tokenizeAndRemovePOS(review, 'NN') #69.45% was ~81% after positive reviews
     #wordsInReview = tokenizeAndRemovePOS(review, 'VB') #69.85%
@@ -215,7 +252,58 @@ def concWeightSim(maxWeight, maxSent):
     print("\nBest Weight: " + str(bestWeight))
 
     #uncomment for some hawt 3d graph action
-    #causeImBored(percentMatrix)
+    causeImBored(percentMatrix)
 
+    
+def buildPosWordList(nameOfDoc, documents):
+    
+    text_file = open(nameOfDoc + ".txt","w")
+    
+    for document in documents:
+        postokens = pos_tag(customtokenize(document.lower()))
+        for i in postokens:
+            print(i[0] + " " + i[1], file = text_file)
+        print(file = text_file)
+        
+    text_file.close()    
+    
 
+def getSuperGoodBad(topNum):
+    import random
+    # get shit
+    posReviews, negReviews = loadReviews()
+    posposList, negposList = loadPosLists()
+    
+    # choose random 800 for training set
+    accuracy = 0.0    
+    percenttrain = 0.8
+    posTrainCount = int(percenttrain*len(posposList))
+    negTrainCount = int(percenttrain*len(negposList)) 
+    
+    posTuples = list(zip(posReviews, posposList))
+    negTuples = list(zip(negReviews, negposList))
+    
+    random.shuffle(posTuples)
+    random.shuffle(negTuples)
+    
+    superPospos = []
+    for tup in posTuples:
+        superPospos += tup[1]
 
+    superNegpos = []
+    for tup in negTuples:
+        superNegpos += tup[1]
+
+    goodFreqDist = FreqDist(superPospos);
+    badFreqDict = FreqDist(superNegpos);
+
+    goodWordsDict = FreqDist(superPospos).most_common(topNum);
+    badWordsDict = FreqDist(superNegpos).most_common(topNum);
+    
+    return goodWordsDict, badWordsDict
+    
+    
+    
+    
+    
+    
