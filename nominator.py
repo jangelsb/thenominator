@@ -61,7 +61,9 @@ def grabAllFromYears(fromYear, toYear):
 
 def grabNFromYears(fromYear, toYear, n):
 	"""
-	Generates a text file with list of movies from fromYear to toYear but only grabs the first n of each year.
+	Generates a text file with list of movies from fromYear to toYear 
+	but only grabs the first n of each year or all of them if there is 
+	under n movies for that year.
 
 	Returns
 	-------
