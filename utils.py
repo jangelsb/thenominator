@@ -33,7 +33,11 @@ def tokenizeAndRemovePOS(document, pos):
     return [tag[0] for tag in tags if tag[1] != pos] 
     
 # loads the part of speech list from the super preprocessed tuple lists
-def loadPosList(path, filterPosList):
+# path is where the list is
+# list of parts of speech
+# if inclusion then only add words with these pos
+# else only take remove these pos instead
+def loadPosList(path, filterPosList, inclusion):
     filterPosList = set(filterPosList)
     nofilter = len(filterPosList) == 0
     with open(path) as myFile:
@@ -46,7 +50,8 @@ def loadPosList(path, filterPosList):
             curList = []
         else:
             parts = line.split(' ')
-            if nofilter or parts[1] in filterPosList:
+            if nofilter or (inclusion and parts[1] in filterPosList) \
+                or (not inclusion and parts[1] not in filterPosList):
                 curList.append(parts[0])
         
     return posList

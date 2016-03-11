@@ -22,8 +22,18 @@ def posminusneg(review, goodWords, badWords):
 def fullPosNegTest():
     goodWords, badWords = utils.getUniqueGoodandBadWords();
     
-    posReviews = utils.loadAllTextFiles('dataset/txt_sentoken/pos/')
-    negReviews = utils.loadAllTextFiles('dataset/txt_sentoken/neg/')
+#    posReviews = utils.loadAllTextFiles('dataset/txt_sentoken/pos/')
+#    negReviews = utils.loadAllTextFiles('dataset/txt_sentoken/neg/')
+    posReviews = utils.loadAllTextFiles('dataset/ebert_reviews/4-0/')
+    posReviews += utils.loadAllTextFiles('dataset/ebert_reviews/3-5/')
+    negReviews = utils.loadAllTextFiles('dataset/ebert_reviews/0-0/')
+    negReviews += utils.loadAllTextFiles('dataset/ebert_reviews/0-5/')
+    negReviews += utils.loadAllTextFiles('dataset/ebert_reviews/1-0/')
+    negReviews += utils.loadAllTextFiles('dataset/ebert_reviews/1-5/')
+    
+    numberOfReviews = 950
+    posReviews = posReviews[:numberOfReviews]
+    negReviews = negReviews[:numberOfReviews]
 
     correct = 0
     count = 0    
@@ -92,8 +102,19 @@ def conclusionWeight(review, weight, goodWords, badWords, numSent):
 def fullConcWeight(weight, numSent):
     goodWords, badWords = utils.getUniqueGoodandBadWords();    
     
-    posReviews = utils.loadAllTextFiles('dataset/txt_sentoken/pos/')
-    negReviews = utils.loadAllTextFiles('dataset/txt_sentoken/neg/')
+#    posReviews = utils.loadAllTextFiles('dataset/txt_sentoken/pos/')
+#    negReviews = utils.loadAllTextFiles('dataset/txt_sentoken/neg/')
+    
+    posReviews = utils.loadAllTextFiles('dataset/ebert_reviews/4-0/')
+    posReviews += utils.loadAllTextFiles('dataset/ebert_reviews/3-5/')
+    negReviews = utils.loadAllTextFiles('dataset/ebert_reviews/0-0/')
+    negReviews += utils.loadAllTextFiles('dataset/ebert_reviews/0-5/')
+    negReviews += utils.loadAllTextFiles('dataset/ebert_reviews/1-0/')
+    negReviews += utils.loadAllTextFiles('dataset/ebert_reviews/1-5/')
+    
+    numberOfReviews = 950
+    posReviews = posReviews[:numberOfReviews]
+    negReviews = negReviews[:numberOfReviews]
 
     correct = 0
     

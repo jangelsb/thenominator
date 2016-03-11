@@ -4,27 +4,33 @@ import random
         
 def getSuperGoodBadAvg(iterations, topNum):
 
-    posList = ['JJ']    
+    posList = ['JJ','NN','RB']    
+    inclusion = True
     
 #    posReviews = utils.loadAllTextFiles('dataset/txt_sentoken/pos/')
 #    negReviews = utils.loadAllTextFiles('dataset/txt_sentoken/neg/')
-#    posposList = utils.loadPosList('dataset/txt_sentoken/negposlist.txt', posList)
-#    negposList = utils.loadPosList('dataset/txt_sentoken/posposlist.txt', posList)
+#    posposList = utils.loadPosList('dataset/txt_sentoken/negposlist.txt', posList, inclusion)
+#    negposList = utils.loadPosList('dataset/txt_sentoken/posposlist.txt', posList, inclusion)
 
     posReviews = utils.loadAllTextFiles('dataset/ebert_reviews/4-0/')
+    posReviews += utils.loadAllTextFiles('dataset/ebert_reviews/3-5/')
     negReviews = utils.loadAllTextFiles('dataset/ebert_reviews/0-0/')
     negReviews += utils.loadAllTextFiles('dataset/ebert_reviews/0-5/')
     negReviews += utils.loadAllTextFiles('dataset/ebert_reviews/1-0/')
+    negReviews += utils.loadAllTextFiles('dataset/ebert_reviews/1-5/')
 
-    posposList = utils.loadPosList('dataset/ebert_reviews/pos4-0.txt', posList)
-    negposList = utils.loadPosList('dataset/ebert_reviews/pos0-0.txt', posList)
-    negposList += utils.loadPosList('dataset/ebert_reviews/pos0-5.txt', posList)
-    negposList += utils.loadPosList('dataset/ebert_reviews/pos1-0.txt', posList)
+    posposList = utils.loadPosList('dataset/ebert_reviews/pos4-0.txt', posList, inclusion)
+    posposList += utils.loadPosList('dataset/ebert_reviews/pos3-5.txt', posList, inclusion)
+    negposList = utils.loadPosList('dataset/ebert_reviews/pos0-0.txt', posList, inclusion)
+    negposList += utils.loadPosList('dataset/ebert_reviews/pos0-5.txt', posList, inclusion)
+    negposList += utils.loadPosList('dataset/ebert_reviews/pos1-0.txt', posList, inclusion)
+    negposList += utils.loadPosList('dataset/ebert_reviews/pos1-5.txt', posList, inclusion)
     
-    posReviews = posReviews[:500]
-    negReviews = negReviews[:500]
-    posposList = posposList[:500]
-    negposList = negposList[:500]
+    numberOfReviews = 950
+    posReviews = posReviews[:numberOfReviews]
+    negReviews = negReviews[:numberOfReviews]
+    posposList = posposList[:numberOfReviews]
+    negposList = negposList[:numberOfReviews]
     
     posTuples = list(zip(posReviews, posposList))
     negTuples = list(zip(negReviews, negposList))    

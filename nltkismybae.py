@@ -6,6 +6,7 @@ from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.naive_bayes import BernoulliNB
+from sklearn.svm import SVC
 
 from nltk.corpus import stopwords as nltkstopwords
 from nltk.corpus import wordnet as wn
@@ -13,8 +14,18 @@ import utils
 
 
 def pipeline_comparison():
-    posReviews = utils.loadAllTextFiles('dataset/txt_sentoken/pos/')
-    negReviews = utils.loadAllTextFiles('dataset/txt_sentoken/neg/')
+    #posReviews = utils.loadAllTextFiles('dataset/txt_sentoken/pos/')
+    #negReviews = utils.loadAllTextFiles('dataset/txt_sentoken/neg/')
+    
+    posReviews = utils.loadAllTextFiles('dataset/ebert_reviews/4-0/')
+    posReviews += utils.loadAllTextFiles('dataset/ebert_reviews/3-5/')
+    negReviews = utils.loadAllTextFiles('dataset/ebert_reviews/0-0/')
+    negReviews += utils.loadAllTextFiles('dataset/ebert_reviews/0-5/')
+    negReviews += utils.loadAllTextFiles('dataset/ebert_reviews/1-0/')
+    negReviews += utils.loadAllTextFiles('dataset/ebert_reviews/1-5/')
+
+    posReviews = posReviews[:950]
+    negReviews = negReviews[:950]
     
     import random
     import numpy as np
@@ -25,7 +36,10 @@ def pipeline_comparison():
     posTrainCount = int(percenttrain*len(posReviews))
     negTrainCount = int(percenttrain*len(negReviews))
     
-    for test in range(10):    
+    num = 50
+    count = 0
+    for test in range(num): 
+        count += 1
         random.shuffle(posReviews)
         random.shuffle(negReviews)                
 
@@ -48,6 +62,7 @@ def pipeline_comparison():
         #pipe = Pipeline([('vect', CountVectorizer(stop_words=nltkstopwords.words('english'))),('tfidf', TfidfTransformer()),('clf', MultinomialNB())])
         #pipe = Pipeline([('vect', CountVectorizer(stop_words=nltkstopwords.words('english'))),('tfidf', TfidfTransformer()),('clf', BernoulliNB())])
         pipe = Pipeline([('vect', CountVectorizer(stop_words=nltkstopwords.words('english'))),('tfidf', TfidfTransformer()),('clf', LogisticRegression())])
+        #pipe = Pipeline([('vect', CountVectorizer(stop_words=nltkstopwords.words('english'))),('tfidf', TfidfTransformer()),('clf', SVC())])
         
         pipe = pipe.fit(train_data, Y_train)
         prediction = pipe.predict(test_data)
@@ -57,11 +72,12 @@ def pipeline_comparison():
             if(actual[i] == prediction[i]):
                 correct+=1
         
-        print(correct / len(actual))
-        accuracy += correct / len(actual)
+        acc = correct / len(actual)
+        accuracy += acc
+        print("{:.3f} {:.3f}".format(acc, accuracy / count))
     
     
-    print("final accuracy: " + "{:.4f}".format(accuracy / 10.0))
+    print("final accuracy: " + "{:.4f}".format(accuracy / num))
     
 
 
