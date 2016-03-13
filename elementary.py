@@ -1,6 +1,6 @@
 import utils
 
-
+# single review calculation for base classifier
 def posminusneg(review, goodWords, badWords):
     wordsInReview = utils.customtokenize(review) #69.90%
     #wordsInReview = tokenizeAndRemovePOS(review, 'JJ') #64.35%
@@ -18,7 +18,7 @@ def posminusneg(review, goodWords, badWords):
     #print("review is " + ("negative" if score < 0 else "positive"))
     return score >= 0
     
-
+# full elementary classifier base heuristic test
 def fullPosNegTest():
     goodWords, badWords = utils.getUniqueGoodandBadWords();
     
@@ -61,7 +61,7 @@ def fullPosNegTest():
             
     return correct / count
 
-
+# base part of elementary classifier with weighting heuristic
 def conclusionWeight(review, weight, goodWords, badWords, numSent):
     reviewSent = review.split('.')
     lastPart = reviewSent[-numSent:]
@@ -99,6 +99,7 @@ def conclusionWeight(review, weight, goodWords, badWords, numSent):
 
 # weight for last sentences
 # number of sentences to increase weight
+# elementary classifier with weighting heuristic
 def fullConcWeight(weight, numSent):
     goodWords, badWords = utils.getUniqueGoodandBadWords();    
     
@@ -111,7 +112,6 @@ def fullConcWeight(weight, numSent):
     negReviews += utils.loadAllTextFiles('dataset/ebert_reviews/0-5/')
     negReviews += utils.loadAllTextFiles('dataset/ebert_reviews/1-0/')
     negReviews += utils.loadAllTextFiles('dataset/ebert_reviews/1-5/')
-    
     numberOfReviews = 950
     posReviews = posReviews[:numberOfReviews]
     negReviews = negReviews[:numberOfReviews]
@@ -132,7 +132,7 @@ def fullConcWeight(weight, numSent):
     
 
 
-# figure out best weight and sentence numbers for fullConcTest
+# runs multiple fullConcTests and finds best weight and sentence parameters
 def concWeightSim(maxWeight, maxSent):
     percentMatrix = [[0 for x in range(maxWeight)] for x in range(maxSent)]
 
@@ -148,7 +148,7 @@ def concWeightSim(maxWeight, maxSent):
     print("\nBest Sentence num: " + str(bestNumSent), end="")
     print("\nBest Weight: " + str(bestWeight))
 
-    #uncomment for some hawt 3d graph action
+    # optional graph drawing function
     drawWeightMatrix(percentMatrix)
     
 def getMatrixMax(matrix):
@@ -164,7 +164,7 @@ def getMatrixMax(matrix):
     indexNumSent = maximum.index(totalMax)
     return totalMax, indexNumSent, indexWeight[indexNumSent]
     
-    # draws the weight matrix for above test
+# draws the weight matrix for concWeightSim
 def drawWeightMatrix(matrix):
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import Axes3D

@@ -4,19 +4,24 @@ from nltk.corpus import stopwords as nltkstopwords
 from nltk.tokenize import word_tokenize
 import re
 
+# loads a text file from the path provided by filename
+# returns it as a big string
 def loadtxtfile(filename):
     with open(filename, 'r') as myfile:
         data = myfile.read().replace('\n','')
     return data
     
+# custom tokenize function that removes punctuation as well
+# string document is returned as list of string tokens
 def customtokenize(document):
     ret = document.lower() #make lowercase and remove leading and trailing whitespace
     ret = re.sub('[^0-9a-zA-Z ]', ' ', ret) #only keep words and numbers
     ret = re.sub(' +', ' ',ret) #remove extra whitespace
     return ret.strip().split()  #remove leading and trailing whitespace then split on space
     
+# takes a string document and tokenizes and makes a bag of words out of it
 def makebagofwords_dicts(document):
-    #tokens = word_tokenize(document.lower())   #this one blows
+    #tokens = word_tokenize(document.lower())   #nltk version not as good for our purposes
     tokens = customtokenize(document.lower())
     
     stopwords = set(nltkstopwords.words('english'))
@@ -28,15 +33,16 @@ def makebagofwords_dicts(document):
 # 'VB' is verb
 # 'RB' is adverb
 # theres a bunch more, look up nltk.pos_tag documentation
+# tokenizes the document and removes part of speech
 def tokenizeAndRemovePOS(document, pos):
     tags = pos_tag(customtokenize(document)) # figures out pos for every word
     return [tag[0] for tag in tags if tag[1] != pos] 
     
 # loads the part of speech list from the super preprocessed tuple lists
 # path is where the list is
-# list of parts of speech
+# filterPosList is a list of parts of speech (can be empty if no filtering wanted)
 # if inclusion then only add words with these pos
-# else only take remove these pos instead
+#   else only remove these pos instead
 def loadPosList(path, filterPosList, inclusion):
     filterPosList = set(filterPosList)
     nofilter = len(filterPosList) == 0
@@ -57,7 +63,7 @@ def loadPosList(path, filterPosList, inclusion):
     return posList
     
 
-# builds a huge text document containing all the words in all the documents
+# builds a huge single text document containing all the words in all the documents
 # each line is formatted as "[word] [part of speech]\n" 
 # each document is seperated by a new line
 # will load all docs from path
@@ -79,6 +85,7 @@ def loadAllTextFiles(path):
 
 
 # loads and returns positive and negative word dataset (from Cornell)
+# returns two sets of strings
 def getUniqueGoodandBadWords():
     with open('dataset/negWords.txt', 'r') as myFile:
         badList = myFile.read().split()
@@ -93,7 +100,7 @@ def getUniqueGoodandBadWords():
     
     return goodWords, badWords
     
-    
+# prints a matrix to the screen for easy viewing
 def printMatrix(matrix):
     rows = len(matrix)
     for i in range(rows):

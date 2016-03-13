@@ -9,11 +9,15 @@ from sklearn.naive_bayes import BernoulliNB
 from sklearn.svm import SVC
 
 from nltk.corpus import stopwords as nltkstopwords
-from nltk.corpus import wordnet as wn
 import utils
 
 
-def pipeline_comparison():
+# this function is used to determine the accuracy of the different sklearn pipelines
+# 4 of the pipelines are can be tested, one just needs to swap the line comments
+# to change between them. At the top of the function is where we switch between
+# our two data sets
+# num defines how many tests to run and average
+def pipeline_test(num):
     #posReviews = utils.loadAllTextFiles('dataset/txt_sentoken/pos/')
     #negReviews = utils.loadAllTextFiles('dataset/txt_sentoken/neg/')
     
@@ -23,9 +27,9 @@ def pipeline_comparison():
     negReviews += utils.loadAllTextFiles('dataset/ebert_reviews/0-5/')
     negReviews += utils.loadAllTextFiles('dataset/ebert_reviews/1-0/')
     negReviews += utils.loadAllTextFiles('dataset/ebert_reviews/1-5/')
-
     posReviews = posReviews[:950]
     negReviews = negReviews[:950]
+    
     
     import random
     import numpy as np
@@ -36,7 +40,6 @@ def pipeline_comparison():
     posTrainCount = int(percenttrain*len(posReviews))
     negTrainCount = int(percenttrain*len(negReviews))
     
-    num = 50
     count = 0
     for test in range(num): 
         count += 1
@@ -53,11 +56,6 @@ def pipeline_comparison():
         test_data = [tup[0] for tup in test_tups]
         actual = np.array([tup[1] for tup in test_tups])
     
-        #80.70  MULTINOMIAL NAIVE BAYES
-        #79.25  BERNOULLI NAIVE BAYES
-        #83.80  LOGISTIC REGRESSION          <--- winner weeeee
-        #next up try cross validation (split data into 5 chunks and swap around which chunk is test set)
-        #use same shuffled list for each different pipeline
     
         #pipe = Pipeline([('vect', CountVectorizer(stop_words=nltkstopwords.words('english'))),('tfidf', TfidfTransformer()),('clf', MultinomialNB())])
         #pipe = Pipeline([('vect', CountVectorizer(stop_words=nltkstopwords.words('english'))),('tfidf', TfidfTransformer()),('clf', BernoulliNB())])
@@ -79,17 +77,3 @@ def pipeline_comparison():
     
     print("final accuracy: " + "{:.4f}".format(accuracy / num))
     
-
-
-
-# filth below    
-# some old tests in previous commits as well
-
-#good example showing what wordnet offers
-#more about relations between words
-#http://wordnetweb.princeton.edu/perl/webwn
-def testWordNet(word):
-    for synset in wn.synsets(word):
-        print(synset)
-        for lemma in synset.lemmas():
-            print(lemma.name())
