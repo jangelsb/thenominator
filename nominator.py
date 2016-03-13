@@ -1,3 +1,7 @@
+# This uses the omdb and tmdb apis to generate a text file with
+# a list of movies from a given year. It can also generate text files for a range of years.
+
+# Pro tip:
 # to load file into interpreter 
 # exec(open('nominator.py').read())
 
@@ -6,7 +10,7 @@ import importlib
 import omdb as omdb
 from keys import tmdb_apikey
 import tmdbsimple as tmdb
-tmdb.API_KEY = tmdb_apikey
+tmdb.API_KEY = tmdb_apikey #set this to your TMDB api key
 
 def reload(module):
 	"""

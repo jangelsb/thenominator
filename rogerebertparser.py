@@ -1,3 +1,10 @@
+# Grabs movies from the lists (located in /dataset/movietitles) 
+# to search Roger Ebert's website for the review and score. 
+# Then stores all the reviews in folders based on their score; 
+# This ultimately makes a supervised data set of movie reviews.
+
+
+
 import re
 from bs4 import BeautifulSoup
 import os
